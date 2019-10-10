@@ -30,7 +30,7 @@ class NetworkStyle;
 class Notificator;
 class OptionsModel;
 class PlatformStyle;
-class RPCConsole;
+class NodeWidget;
 class SendCoinsRecipient;
 class UnitDisplayStatusBarControl;
 class WalletController;
@@ -144,7 +144,7 @@ private:
     QAction* backupWalletAction = nullptr;
     QAction* changePassphraseAction = nullptr;
     QAction* aboutQtAction = nullptr;
-    QAction* openRPCConsoleAction = nullptr;
+    QAction* openNodeWidgetAction = nullptr;
     QAction* openAction = nullptr;
     QAction* showHelpMessageAction = nullptr;
     QAction* m_create_wallet_action{nullptr};
@@ -160,7 +160,7 @@ private:
     QSystemTrayIcon* trayIcon = nullptr;
     const std::unique_ptr<QMenu> trayIconMenu;
     Notificator* notificator = nullptr;
-    RPCConsole* rpcConsole = nullptr;
+    NodeWidget* nodeWidget = nullptr;
     HelpMessageDialog* helpMessageDialog = nullptr;
     ModalOverlay* modalOverlay = nullptr;
 
@@ -204,7 +204,7 @@ Q_SIGNALS:
     /** Signal raised when a URI was entered or dragged to the GUI */
     void receivedURI(const QString &uri);
     /** Signal raised when RPC console shown */
-    void consoleShown(RPCConsole* console);
+    void consoleShown(NodeWidget* console);
 
 public Q_SLOTS:
     /** Set number of connections shown in the UI */
@@ -278,10 +278,10 @@ public Q_SLOTS:
     void optionsClicked();
     /** Show about dialog */
     void aboutClicked();
-    /** Show debug window */
-    void showDebugWindow();
-    /** Show debug window and set focus to the console */
-    void showDebugWindowActivateConsole();
+    /** Show node debug window */
+    void showNodeWindow();
+    /** Show node debug window and set focus to the console */
+    void showNodeWindowActivateConsole();
     /** Show help message dialog */
     void showHelpMessageClicked();
 #ifndef Q_OS_MAC

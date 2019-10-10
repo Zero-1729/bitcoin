@@ -12,7 +12,7 @@
 
 class BitcoinApplication;
 class BitcoinGUI;
-class RPCConsole;
+class NodeWidget;
 
 class AppTests : public QObject
 {
@@ -23,7 +23,7 @@ public:
 private Q_SLOTS:
     void appTests();
     void guiTests(BitcoinGUI* window);
-    void consoleTests(RPCConsole* console);
+    void consoleTests(NodeWidget* console);
 
 private:
     //! Add expected callback name to list of pending callbacks.

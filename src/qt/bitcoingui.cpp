@@ -92,7 +92,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     setWindowIcon(m_network_style->getTrayAndWindowIcon());
     updateWindowTitle();
 
-    rpcConsole = new RPCConsole(node, _platformStyle, nullptr);
+    nodeWidget = new NodeWidget(node, _platformStyle, nullptr);
     helpMessageDialog = new HelpMessageDialog(node, this, false);
 #ifdef ENABLE_WALLET
     if(enableWallet)
@@ -104,10 +104,10 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 #endif // ENABLE_WALLET
     {
         /* When compiled without wallet or -disablewallet is provided,
-         * the central widget is the rpc console.
+         * the central widget is the node rpc console.
          */
-        setCentralWidget(rpcConsole);
-        Q_EMIT consoleShown(rpcConsole);
+        setCentralWidget(nodeWidget);
+        Q_EMIT consoleShown(nodeWidget);
     }
 
     // Accept D&D of URIs
@@ -228,7 +228,7 @@ BitcoinGUI::~BitcoinGUI()
     MacDockIconHandler::cleanup();
 #endif
 
-    delete rpcConsole;
+    delete nodeWidget;
 }
 
 void BitcoinGUI::createActions()
@@ -318,11 +318,11 @@ void BitcoinGUI::createActions()
     verifyMessageAction = new QAction(tr("&Verify message..."), this);
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Bitcoin addresses"));
 
-    openRPCConsoleAction = new QAction(tr("&Node window"), this);
-    openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
-    // initially disable the debug window menu item
-    openRPCConsoleAction->setEnabled(false);
-    openRPCConsoleAction->setObjectName("openRPCConsoleAction");
+    openNodeWidgetAction = new QAction(tr("&Node window"), this);
+    openNodeWidgetAction->setStatusTip(tr("Open node debugging and diagnostic console"));
+    // initially disable the node debug window menu item
+    openNodeWidgetAction->setEnabled(false);
+    openNodeWidgetAction->setObjectName("openNodeWidgetAction");
 
     usedSendingAddressesAction = new QAction(tr("&Sending addresses"), this);
     usedSendingAddressesAction->setStatusTip(tr("Show the list of used sending addresses and labels"));
@@ -353,9 +353,9 @@ void BitcoinGUI::createActions()
     connect(optionsAction, &QAction::triggered, this, &BitcoinGUI::optionsClicked);
     connect(toggleHideAction, &QAction::triggered, this, &BitcoinGUI::toggleHidden);
     connect(showHelpMessageAction, &QAction::triggered, this, &BitcoinGUI::showHelpMessageClicked);
-    connect(openRPCConsoleAction, &QAction::triggered, this, &BitcoinGUI::showDebugWindow);
-    // prevents an open debug window from becoming stuck/unusable on client shutdown
-    connect(quitAction, &QAction::triggered, rpcConsole, &QWidget::hide);
+    connect(openNodeWidgetAction, &QAction::triggered, this, &BitcoinGUI::showNodeWindow);
+    // prevents an open node debug window from becoming stuck/unusable on client shutdown
+    connect(quitAction, &QAction::triggered, nodeWidget, &QWidget::hide);
 
 #ifdef ENABLE_WALLET
     if(walletFrame)
@@ -411,8 +411,8 @@ void BitcoinGUI::createActions()
     }
 #endif // ENABLE_WALLET
 
-    connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C), this), &QShortcut::activated, this, &BitcoinGUI::showDebugWindowActivateConsole);
-    connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_D), this), &QShortcut::activated, this, &BitcoinGUI::showDebugWindow);
+    connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C), this), &QShortcut::activated, this, &BitcoinGUI::showNodeWindowActivateConsole);
+    connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_D), this), &QShortcut::activated, this, &BitcoinGUI::showNodeWindow);
 }
 
 void BitcoinGUI::createMenuBar()
@@ -491,12 +491,12 @@ void BitcoinGUI::createMenuBar()
     }
 
     window_menu->addSeparator();
-    for (RPCConsole::TabTypes tab_type : rpcConsole->tabs()) {
-        QAction* tab_action = window_menu->addAction(rpcConsole->tabTitle(tab_type));
-        tab_action->setShortcut(rpcConsole->tabShortcut(tab_type));
+    for (NodeWidget::TabTypes tab_type : nodeWidget->tabs()) {
+        QAction* tab_action = window_menu->addAction(nodeWidget->tabTitle(tab_type));
+        tab_action->setShortcut(nodeWidget->tabShortcut(tab_type));
         connect(tab_action, &QAction::triggered, [this, tab_type] {
-            rpcConsole->setTabFocus(tab_type);
-            showDebugWindow();
+            nodeWidget->setTabFocus(tab_type);
+            showNodeWindow();
         });
     }
 
@@ -570,7 +570,7 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
         // Show progress dialog
         connect(_clientModel, &ClientModel::showProgress, this, &BitcoinGUI::showProgress);
 
-        rpcConsole->setClientModel(_clientModel);
+        nodeWidget->setClientModel(_clientModel);
 
         updateProxyIcon();
 
@@ -599,7 +599,7 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
             trayIconMenu->clear();
         }
         // Propagate cleared model to child objects
-        rpcConsole->setClientModel(nullptr);
+        nodeWidget->setClientModel(nullptr);
 #ifdef ENABLE_WALLET
         if (walletFrame)
         {
@@ -634,7 +634,7 @@ void BitcoinGUI::addWallet(WalletModel* walletModel)
     if (!walletFrame) return;
     const QString display_name = walletModel->getDisplayName();
     setWalletActionsEnabled(true);
-    rpcConsole->addWallet(walletModel);
+    nodeWidget->addWallet(walletModel);
     walletFrame->addWallet(walletModel);
     m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
     if (m_wallet_selector->count() == 2) {
@@ -654,7 +654,7 @@ void BitcoinGUI::removeWallet(WalletModel* walletModel)
         m_wallet_selector_label_action->setVisible(false);
         m_wallet_selector_action->setVisible(false);
     }
-    rpcConsole->removeWallet(walletModel);
+    nodeWidget->removeWallet(walletModel);
     walletFrame->removeWallet(walletModel);
     updateWindowTitle();
 }
@@ -750,7 +750,7 @@ void BitcoinGUI::createTrayIconMenu()
         trayIconMenu->addSeparator();
     }
     trayIconMenu->addAction(optionsAction);
-    trayIconMenu->addAction(openRPCConsoleAction);
+    trayIconMenu->addAction(openNodeWidgetAction);
 #ifndef Q_OS_MAC // This is built-in on macOS
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
@@ -788,16 +788,16 @@ void BitcoinGUI::aboutClicked()
     dlg.exec();
 }
 
-void BitcoinGUI::showDebugWindow()
+void BitcoinGUI::showNodeWindow()
 {
-    GUIUtil::bringToFront(rpcConsole);
-    Q_EMIT consoleShown(rpcConsole);
+    GUIUtil::bringToFront(nodeWidget);
+    Q_EMIT consoleShown(nodeWidget);
 }
 
-void BitcoinGUI::showDebugWindowActivateConsole()
+void BitcoinGUI::showNodeWindowActivateConsole()
 {
-    rpcConsole->setTabFocus(RPCConsole::TAB_CONSOLE);
-    showDebugWindow();
+    nodeWidget->setTabFocus(NodeWidget::TAB_CONSOLE);
+    showNodeWindow();
 }
 
 void BitcoinGUI::showHelpMessageClicked()
@@ -1116,8 +1116,8 @@ void BitcoinGUI::closeEvent(QCloseEvent *event)
     {
         if(!clientModel->getOptionsModel()->getMinimizeOnClose())
         {
-            // close rpcConsole in case it was open to make some space for the shutdown window
-            rpcConsole->close();
+            // close nodeWidget (formely rpcConsole) in case it was open to make some space for the shutdown window
+            nodeWidget->close();
 
             QApplication::quit();
         }
@@ -1134,8 +1134,8 @@ void BitcoinGUI::closeEvent(QCloseEvent *event)
 
 void BitcoinGUI::showEvent(QShowEvent *event)
 {
-    // enable the debug window when the main window shows up
-    openRPCConsoleAction->setEnabled(true);
+    // enable the node debug window when the main window shows up
+    openNodeWidgetAction->setEnabled(true);
     aboutAction->setEnabled(true);
     optionsAction->setEnabled(true);
 }
@@ -1312,8 +1312,8 @@ void BitcoinGUI::detectShutdown()
 {
     if (m_node.shutdownRequested())
     {
-        if(rpcConsole)
-            rpcConsole->hide();
+        if(nodeWidget)
+            nodeWidget->hide();
         qApp->quit();
     }
 }

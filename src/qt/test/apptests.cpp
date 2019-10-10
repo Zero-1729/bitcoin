@@ -31,7 +31,7 @@
 
 namespace {
 //! Call getblockchaininfo RPC and check first field of JSON output.
-void TestRpcCommand(RPCConsole* console)
+void TestRpcCommand(NodeWidget* console)
 {
     QEventLoop loop;
     QTextEdit* messagesWidget = console->findChild<QTextEdit*>("messagesWidget");
@@ -90,12 +90,12 @@ void AppTests::guiTests(BitcoinGUI* window)
     HandleCallback callback{"guiTests", *this};
     connect(window, &BitcoinGUI::consoleShown, this, &AppTests::consoleTests);
     expectCallback("consoleTests");
-    QAction* action = window->findChild<QAction*>("openRPCConsoleAction");
+    QAction* action = window->findChild<QAction*>("openNodeWidgetAction");
     action->activate(QAction::Trigger);
 }
 
-//! Entry point for RPCConsole tests.
-void AppTests::consoleTests(RPCConsole* console)
+//! Entry point for NodeWidget (formerly RPCConsole) tests.
+void AppTests::consoleTests(NodeWidget* console)
 {
     HandleCallback callback{"consoleTests", *this};
     TestRpcCommand(console);

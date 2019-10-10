@@ -42,87 +42,87 @@ void RPCNestedTests::rpcNestedTests()
     std::string result2;
     std::string filtered;
     auto node = interfaces::MakeNode();
-    RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo()[chain]", &filtered); //simple result filtering with path
+    NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo()[chain]", &filtered); //simple result filtering with path
     QVERIFY(result=="main");
     QVERIFY(filtered == "getblockchaininfo()[chain]");
 
-    RPCConsole::RPCExecuteCommandLine(*node, result, "getblock(getbestblockhash())"); //simple 2 level nesting
-    RPCConsole::RPCExecuteCommandLine(*node, result, "getblock(getblock(getbestblockhash())[hash], true)");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "getblock(getbestblockhash())"); //simple 2 level nesting
+    NodeWidget::RPCExecuteCommandLine(*node, result, "getblock(getblock(getbestblockhash())[hash], true)");
 
-    RPCConsole::RPCExecuteCommandLine(*node, result, "getblock( getblock( getblock(getbestblockhash())[hash] )[hash], true)"); //4 level nesting with whitespace, filtering path and boolean parameter
+    NodeWidget::RPCExecuteCommandLine(*node, result, "getblock( getblock( getblock(getbestblockhash())[hash] )[hash], true)"); //4 level nesting with whitespace, filtering path and boolean parameter
 
-    RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo");
     QVERIFY(result.substr(0,1) == "{");
 
-    RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo()");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo()");
     QVERIFY(result.substr(0,1) == "{");
 
-    RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo "); //whitespace at the end will be tolerated
+    NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo "); //whitespace at the end will be tolerated
     QVERIFY(result.substr(0,1) == "{");
 
-    (RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo()[\"chain\"]")); //Quote path identifier are allowed, but look after a child containing the quotes in the key
+    (NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo()[\"chain\"]")); //Quote path identifier are allowed, but look after a child containing the quotes in the key
     QVERIFY(result == "null");
 
-    (RPCConsole::RPCExecuteCommandLine(*node, result, "createrawtransaction [] {} 0")); //parameter not in brackets are allowed
-    (RPCConsole::RPCExecuteCommandLine(*node, result2, "createrawtransaction([],{},0)")); //parameter in brackets are allowed
+    (NodeWidget::RPCExecuteCommandLine(*node, result, "createrawtransaction [] {} 0")); //parameter not in brackets are allowed
+    (NodeWidget::RPCExecuteCommandLine(*node, result2, "createrawtransaction([],{},0)")); //parameter in brackets are allowed
     QVERIFY(result == result2);
-    (RPCConsole::RPCExecuteCommandLine(*node, result2, "createrawtransaction( [],  {} , 0   )")); //whitespace between parameters is allowed
+    (NodeWidget::RPCExecuteCommandLine(*node, result2, "createrawtransaction( [],  {} , 0   )")); //whitespace between parameters is allowed
     QVERIFY(result == result2);
 
-    RPCConsole::RPCExecuteCommandLine(*node, result, "getblock(getbestblockhash())[tx][0]", &filtered);
+    NodeWidget::RPCExecuteCommandLine(*node, result, "getblock(getbestblockhash())[tx][0]", &filtered);
     QVERIFY(result == "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b");
     QVERIFY(filtered == "getblock(getbestblockhash())[tx][0]");
 
-    RPCConsole::RPCParseCommandLine(nullptr, result, "importprivkey", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "importprivkey", false, &filtered);
     QVERIFY(filtered == "importprivkey(…)");
-    RPCConsole::RPCParseCommandLine(nullptr, result, "signmessagewithprivkey abc", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "signmessagewithprivkey abc", false, &filtered);
     QVERIFY(filtered == "signmessagewithprivkey(…)");
-    RPCConsole::RPCParseCommandLine(nullptr, result, "signmessagewithprivkey abc,def", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "signmessagewithprivkey abc,def", false, &filtered);
     QVERIFY(filtered == "signmessagewithprivkey(…)");
-    RPCConsole::RPCParseCommandLine(nullptr, result, "signrawtransactionwithkey(abc)", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "signrawtransactionwithkey(abc)", false, &filtered);
     QVERIFY(filtered == "signrawtransactionwithkey(…)");
-    RPCConsole::RPCParseCommandLine(nullptr, result, "walletpassphrase(help())", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "walletpassphrase(help())", false, &filtered);
     QVERIFY(filtered == "walletpassphrase(…)");
-    RPCConsole::RPCParseCommandLine(nullptr, result, "walletpassphrasechange(help(walletpassphrasechange(abc)))", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "walletpassphrasechange(help(walletpassphrasechange(abc)))", false, &filtered);
     QVERIFY(filtered == "walletpassphrasechange(…)");
-    RPCConsole::RPCParseCommandLine(nullptr, result, "help(encryptwallet(abc, def))", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "help(encryptwallet(abc, def))", false, &filtered);
     QVERIFY(filtered == "help(encryptwallet(…))");
-    RPCConsole::RPCParseCommandLine(nullptr, result, "help(importprivkey())", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "help(importprivkey())", false, &filtered);
     QVERIFY(filtered == "help(importprivkey(…))");
-    RPCConsole::RPCParseCommandLine(nullptr, result, "help(importprivkey(help()))", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "help(importprivkey(help()))", false, &filtered);
     QVERIFY(filtered == "help(importprivkey(…))");
-    RPCConsole::RPCParseCommandLine(nullptr, result, "help(importprivkey(abc), walletpassphrase(def))", false, &filtered);
+    NodeWidget::RPCParseCommandLine(nullptr, result, "help(importprivkey(abc), walletpassphrase(def))", false, &filtered);
     QVERIFY(filtered == "help(importprivkey(…), walletpassphrase(…))");
 
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest");
     QVERIFY(result == "[]");
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest ''");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest ''");
     QVERIFY(result == "[\"\"]");
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest \"\"");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest \"\"");
     QVERIFY(result == "[\"\"]");
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest '' abc");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest '' abc");
     QVERIFY(result == "[\"\",\"abc\"]");
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest abc '' abc");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest abc '' abc");
     QVERIFY(result == "[\"abc\",\"\",\"abc\"]");
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest abc  abc");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest abc  abc");
     QVERIFY(result == "[\"abc\",\"abc\"]");
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest abc\t\tabc");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest abc\t\tabc");
     QVERIFY(result == "[\"abc\",\"abc\"]");
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest(abc )");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest(abc )");
     QVERIFY(result == "[\"abc\"]");
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest( abc )");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest( abc )");
     QVERIFY(result == "[\"abc\"]");
-    RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest(   abc   ,   cba )");
+    NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest(   abc   ,   cba )");
     QVERIFY(result == "[\"abc\",\"cba\"]");
 
     // do the QVERIFY_EXCEPTION_THROWN checks only with Qt5.3 and higher (QVERIFY_EXCEPTION_THROWN was introduced in Qt5.3)
-    QVERIFY_EXCEPTION_THROWN(RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo() .\n"), std::runtime_error); //invalid syntax
-    QVERIFY_EXCEPTION_THROWN(RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo() getblockchaininfo()"), std::runtime_error); //invalid syntax
-    (RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo(")); //tolerate non closing brackets if we have no arguments
-    (RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo()()()")); //tolerate non command brackts
-    QVERIFY_EXCEPTION_THROWN(RPCConsole::RPCExecuteCommandLine(*node, result, "getblockchaininfo(True)"), UniValue); //invalid argument
-    QVERIFY_EXCEPTION_THROWN(RPCConsole::RPCExecuteCommandLine(*node, result, "a(getblockchaininfo(True))"), UniValue); //method not found
-    QVERIFY_EXCEPTION_THROWN(RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest abc,,abc"), std::runtime_error); //don't tollerate empty arguments when using ,
-    QVERIFY_EXCEPTION_THROWN(RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest(abc,,abc)"), std::runtime_error); //don't tollerate empty arguments when using ,
-    QVERIFY_EXCEPTION_THROWN(RPCConsole::RPCExecuteCommandLine(*node, result, "rpcNestedTest(abc,,)"), std::runtime_error); //don't tollerate empty arguments when using ,
+    QVERIFY_EXCEPTION_THROWN(NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo() .\n"), std::runtime_error); //invalid syntax
+    QVERIFY_EXCEPTION_THROWN(NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo() getblockchaininfo()"), std::runtime_error); //invalid syntax
+    (NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo(")); //tolerate non closing brackets if we have no arguments
+    (NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo()()()")); //tolerate non command brackts
+    QVERIFY_EXCEPTION_THROWN(NodeWidget::RPCExecuteCommandLine(*node, result, "getblockchaininfo(True)"), UniValue); //invalid argument
+    QVERIFY_EXCEPTION_THROWN(NodeWidget::RPCExecuteCommandLine(*node, result, "a(getblockchaininfo(True))"), UniValue); //method not found
+    QVERIFY_EXCEPTION_THROWN(NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest abc,,abc"), std::runtime_error); //don't tollerate empty arguments when using ,
+    QVERIFY_EXCEPTION_THROWN(NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest(abc,,abc)"), std::runtime_error); //don't tollerate empty arguments when using ,
+    QVERIFY_EXCEPTION_THROWN(NodeWidget::RPCExecuteCommandLine(*node, result, "rpcNestedTest(abc,,)"), std::runtime_error); //don't tollerate empty arguments when using ,
 }

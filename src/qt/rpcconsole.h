@@ -24,7 +24,7 @@ namespace interfaces {
 }
 
 namespace Ui {
-    class RPCConsole;
+    class NodeWidget;
 }
 
 QT_BEGIN_NAMESPACE
@@ -32,14 +32,14 @@ class QMenu;
 class QItemSelection;
 QT_END_NAMESPACE
 
-/** Local Bitcoin RPC console. */
-class RPCConsole: public QWidget
+/** Local Bitcoin Node Widget (formerly RPC console). */
+class NodeWidget: public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit RPCConsole(interfaces::Node& node, const PlatformStyle *platformStyle, QWidget *parent);
-    ~RPCConsole();
+    explicit NodeWidget(interfaces::Node& node, const PlatformStyle *platformStyle, QWidget *parent);
+    ~NodeWidget();
 
     static bool RPCParseCommandLine(interfaces::Node* node, std::string &strResult, const std::string &strCommand, bool fExecute, std::string * const pstrFilteredOut = nullptr, const WalletModel* wallet_model = nullptr);
     static bool RPCExecuteCommandLine(interfaces::Node& node, std::string &strResult, const std::string &strCommand, std::string * const pstrFilteredOut = nullptr, const WalletModel* wallet_model = nullptr) {
@@ -151,7 +151,7 @@ private:
     };
 
     interfaces::Node& m_node;
-    Ui::RPCConsole* const ui;
+    Ui::NodeWidget* const ui;
     ClientModel *clientModel = nullptr;
     QStringList history;
     int historyPtr = 0;
