@@ -9,7 +9,7 @@
 #include <qt/bitcoin.h>
 #include <qt/bitcoingui.h>
 #include <qt/networkstyle.h>
-#include <qt/rpcconsole.h>
+#include <qt/nodewidget.h>
 #include <shutdown.h>
 #include <test/setup_common.h>
 #include <univalue.h>
