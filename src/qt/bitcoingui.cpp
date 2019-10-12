@@ -496,6 +496,8 @@ void BitcoinGUI::createMenuBar()
         tab_action->setShortcut(nodeWidget->tabShortcut(tab_type));
         connect(tab_action, &QAction::triggered, [this, tab_type] {
             nodeWidget->setTabFocus(tab_type);
+            // Update window title to current tab name
+            nodeWidget->updateWindowTitle(nodeWidget->tabTitle(tab_type));
             showNodeWindow();
         });
     }

@@ -129,6 +129,8 @@ public Q_SLOTS:
     void unbanSelectedNode();
     /** set which tab has the focus (is visible) */
     void setTabFocus(enum TabTypes tabType);
+    /** dynamically set window title */
+    void updateWindowTitle(const QString& text);
 
 Q_SIGNALS:
     // For RPC command executor

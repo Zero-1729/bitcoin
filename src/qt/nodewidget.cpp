@@ -982,11 +982,22 @@ void NodeWidget::startExecutor()
     thread.start();
 }
 
+void NodeWidget::updateWindowTitle(const QString& text)
+{
+    // Change window title to the current tab text
+    // stripping away the '&' first
+    setWindowTitle(tr("%1 Window").arg(text.right(text.length()-1)));
+}
+
 void NodeWidget::on_tabWidget_currentChanged(int index)
 {
     if (ui->tabWidget->widget(index) == ui->tab_console) {
         ui->lineEdit->setFocus();
     }
+
+    // Update window title to current tab name
+    // each time the current tab is updated
+    updateWindowTitle(ui->tabWidget->tabText(index));
 }
 
 void NodeWidget::on_openDebugLogfileButton_clicked()
